@@ -1,43 +1,37 @@
 /*
  * SpectraScan.ino — v3.0
+ * https://github.com/ViliusKsg/SpectraScan
  *
  * ESP32-S3 portable wireless security auditor
  * WiFi & BLE scanner with touch TFT display
- * Hardware: Freenove ESP32-S3 FNK0086
  *
- * v3.0 pakeitimai:
- *   - Station (klientu) aptikimas is data frame DS bits
- *   - EAPOL 4-way handshake + PMKID pasyvus fiksavimas
- *   - PMKID serial isvestis hashcat -m 22000 formatu
- *   - Atviru tinklu (OPEN) automatinis alertas
- *   - WPS aptikimas is Vendor Specific IE (0x00 0x50 0xF2 0x04)
- *   - Summary skirtukas: audito santrauka
- *   - 6 UI tabs: WiFi, Spec, STA, BLE, Alrt, Sum
- *
- * v2.0 pakeitimai:
- *   - Promiscuous (monitor) rezimas — pasyvus, NESIUNCIIA probe request
- *   - Channel hopping 1-13 (150 ms per kanala)
- *   - Tikras kanalų analizatorius: paketų skaičius per 1.5 s langa
- *   - Šifravimo aptikimas iš RSN / WPA IE beacon frame
- *   - BSSID stulpelis (paskutiniai 3 oktetai) WiFi lentelejė
- *   - Deauth / Disassoc atakų aptikimas › 4-as "Alerts" tab
- *   - Alert badge ant WiFi tab kai aptinkama ataka
- *   - BLE "paskutini kartą matytas" + automatinis išvalymas po 60 s
- *   - AirTag aptikimas (Apple CID 0x004C + FindMy 0x12/0x19 payload)
- *   - Flipper Zero aptikimas (CID 0x0BA0)
- *   - BLE skimerio heuristika (bekardis, stiprus signalas, nezinomas CID)
+ * Features:
+ *   - Passive promiscuous mode (no probe requests transmitted)
+ *   - Channel hopping 1-13 with real-time spectrum analyzer
+ *   - Station (client) detection from data frame DS bits
+ *   - EAPOL 4-way handshake + PMKID passive capture (hashcat -m 22000)
+ *   - Open network automatic alerting
+ *   - WPS detection from Vendor Specific IE
+ *   - Deauth/Disassoc attack detection with alerts
+ *   - AirTag tracking detection (Apple FindMy)
+ *   - Flipper Zero detection (CID 0x0BA0)
+ *   - BLE skimmer heuristic (anonymous, strong signal, unknown CID)
+ *   - 6 UI tabs: WiFi, Spectrum, Stations, BLE, Alerts, Summary
  *
  * Hardware:
- *   ESP32-S3R8 (8 MB PSRAM)
- *   ST7789 240x320 TFT (TFT_eSPI, USE_HSPI_PORT)
+ *   ESP32-S3R8 (8 MB PSRAM) — Freenove FNK0086
+ *   ST7789 240x320 TFT (SPI, HSPI)
  *   FT6336U capacitive touch (I2C SDA=2, SCL=1)
  *
- * Reikalingos bibliotekos:
- *   TFT_eSPI v2.5.43   — User_Setup_Select.h -> FNK0086A_2.8_CFG1_240x320_ST7789
- *   lvgl v8.4.0        — lv_conf.h: LV_FONT_MONTSERRAT_12 = 1
+ * Dependencies:
+ *   TFT_eSPI v2.5.43   — User_Setup: FNK0086A_2.8_CFG1_240x320_ST7789
+ *   LVGL v8.4.0        — lv_conf.h: LV_FONT_MONTSERRAT_12 = 1
  *   Arduino-FT6336U v1.0.2
  *
- * Arduino IDE: ESP32S3 Dev Module, paketas 2.0.7
+ * Build: Arduino IDE, ESP32S3 Dev Module, board package 2.0.7
+ *        Partition: Huge APP (3MB No OTA), USB CDC On Boot: Enabled
+ *
+ * License: MIT
  */
 
 #include <Arduino.h>
@@ -841,8 +835,8 @@ static void initDisplay()
 }
 
 // ================================================================
-// BLE callback — AirTag / Flipper / skimmer aptikimas
-// Vykdomas BLE stack FreeRTOS task
+// BLE callback — AirTag / Flipper / skimmer detection
+// Runs in BLE stack FreeRTOS task
 // ================================================================
 class BLECb : public BLEAdvertisedDeviceCallbacks {
     void onResult(BLEAdvertisedDevice dev) override {
