@@ -3,7 +3,9 @@
 **ESP32-S3 portable wireless security auditor — WiFi & BLE scanner with touch TFT display**
 
 <p align="center">
-  <img src="docs/spectrascan-banner.png" alt="SpectraScan" width="600">
+  <img src="docs/wifi-tab.jpg" alt="WiFi Tab" width="280">
+  <img src="docs/summary-tab.jpg" alt="Summary Tab" width="280">
+  <img src="docs/spectrum-tab.jpg" alt="Spectrum Analyzer" width="280">
 </p>
 
 ## Features
