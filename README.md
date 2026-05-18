@@ -99,8 +99,12 @@ SpectraScan/
 ├── firmware/
 │   └── SpectraScan/
 │       └── SpectraScan.ino    # Main firmware source
-├── docs/                      # Documentation & images
+├── tools/
+│   └── TouchCalibrationTest/
+│       └── TouchCalibrationTest.ino  # Touch diagnostics & calibration
+├── docs/                      # Photos & documentation
 ├── hardware/                  # Hardware reference
+├── DEVELOPMENT.md             # Build workflow & dev notes
 ├── LICENSE                    # MIT License
 ├── .gitignore
 └── README.md
